@@ -496,17 +496,49 @@ void Game::RenderGameOver(sf::RenderWindow & window, float elapsed) {
 	txt.setString("High scores");
 	txt.setPosition(window.getSize().x / 2.f - fr.width / 2.f, fr.height*0.1f);
 	window.draw(txt);
+
+	sf::Text headers[3];
+	//fr = headers.getGlobalBounds();
+	headers[0].setString("Name");
+	headers[1].setString("Score");
+	headers[2].setString("Time Alive");
+
+	for (int i = 0; i < 3; i++)
+	{
+		fr = headers[i].getGlobalBounds();
+		headers[i].setFont(font);
+		headers[i].setPosition(window.getSize().x * ((i+1) / 3.f) / 1.5f, fr.height * 0.4f + 100);
+		window.draw(headers[i]);
+	}
+
 	for (int i = 0; i < metrics.playerData.size(); i++)
 	{
-		sf::Text scoreText;
-		scoreText.setFont(font);
-		scoreText.setPosition(window.getSize().x / 2.f - fr.width / 2.f, (fr.height * 0.1f) + ((i+2) * 50));
-		scoreText.setColor(sf::Color::White);
-		string scores = metrics.playerData[i].name + " - " + std::to_string(metrics.playerData[i].score) +
-			"	Time Alive: " + std::to_string(metrics.playerData[i].timeAlive) + "s";
-		scoreText.setString(scores);
-		window.draw(scoreText);
+		//sf::Text scoreText;
+		//scoreText.setFont(font);
+		//scoreText.setPosition(window.getSize().x / 2.f - fr.width / 2.f, (fr.height * 0.1f) + ((i+2) * 50));
+		//scoreText.setColor(sf::Color::White);
+		//string scores = metrics.playerData[i].name + " - " + std::to_string(metrics.playerData[i].score) +
+		//	"	Time Alive: " + std::to_string(metrics.playerData[i].timeAlive) + "s";
+		//scoreText.setString(scores);
+		//window.draw(scoreText);
 
+		sf::Text name, score, timeAlive;
+
+		name.setFont(font);
+		score.setFont(font);
+		timeAlive.setFont(font);
+
+		name.setString(metrics.playerData[i].name);
+		score.setString(std::to_string(metrics.playerData[i].score));
+		timeAlive.setString(std::to_string(metrics.playerData[i].timeAlive));
+
+		name.setPosition(window.getSize().x / 4.f, (fr.height * 0.1f) + ((i + 3) * 50));
+		score.setPosition(window.getSize().x / 4.f + 300, (fr.height * 0.1f) + ((i + 3) * 50));
+		timeAlive.setPosition(window.getSize().x / 4.f + 600, (fr.height * 0.1f) + ((i + 3) * 50));
+
+		window.draw(name);
+		window.draw(score);
+		window.draw(timeAlive);
 	}
 
 }
