@@ -16,7 +16,7 @@ bool HigherScore(Metrics::PlayerData a, Metrics::PlayerData b)
 }
 
 void Metrics::SortAndUpdatePlayerData() {
-	PlayerData d{ name,score };
+	PlayerData d{ name,score,timeAlive };
 
 	//sort the scoreboard from highest to lowest
 	std::sort(playerData.begin(), playerData.end(), HigherScore);
@@ -69,7 +69,8 @@ bool Metrics::DBLoad(const std::string& path) {
 		db.ExecQuery("CREATE TABLE HIGHSCORES(" \
 			"ID			INTEGER PRIMARY KEY		,"\
 			"NAME		TEXT	NOT NULL,"\
-			"SCORE		INT		NOT NULL)");
+			"SCORE		INT		NOT NULL,"\
+			"TIME_ALIVE		REAL	NOT NULL)");
 		db.ExecQuery("CREATE TABLE GAME_INFO("\
 			"ID			INTEGER PRIMARY KEY		,"\
 			"VERSION		CHAR(10)	NOT NULL)");
@@ -121,9 +122,10 @@ bool Metrics::DBSave(const std::string& path) {
 	for (size_t i = 0; i < playerData.size(); i++)
 	{
 		ss.str("");
-		ss << "INSERT INTO HIGHSCORES (NAME,SCORE)" \
+		ss << "INSERT INTO HIGHSCORES (NAME,SCORE,TIME_ALIVE)" \
 			<< "VALUES ('" << playerData[i].name << "'," \
-			<< playerData[i].score << ")";
+			<< playerData[i].score << "," <<
+			playerData[i].timeAlive << ")";
 		db.ExecQuery(ss.str());
 	}
 	ss.str("");
@@ -170,6 +172,7 @@ bool Metrics::IsScoreInTopTen() {
 
 void Metrics::Restart() {
 	score = 0;
+	timeAlive = 0;
 	lives = GC::NUM_LIVES;
 }
 
@@ -416,6 +419,7 @@ void Game::NewGame(sf::RenderWindow & window)
 }
 
 void Game::UpdateInGame(sf::RenderWindow & window, float elapsed, bool fire) {
+	metrics.timeAlive += elapsed;
 	if (rockTimer.Cycle(elapsed))
 	{
 		if (Spawn(GameObj::ObjectT::Rock, window, objects, rockShipClearance))
@@ -498,7 +502,8 @@ void Game::RenderGameOver(sf::RenderWindow & window, float elapsed) {
 		scoreText.setFont(font);
 		scoreText.setPosition(window.getSize().x / 2.f - fr.width / 2.f, (fr.height * 0.1f) + ((i+2) * 50));
 		scoreText.setColor(sf::Color::White);
-		string scores = metrics.playerData[i].name + " - " + std::to_string(metrics.playerData[i].score);
+		string scores = metrics.playerData[i].name + " - " + std::to_string(metrics.playerData[i].score) +
+			"	Time Alive: " + std::to_string(metrics.playerData[i].timeAlive) + "s";
 		scoreText.setString(scores);
 		window.draw(scoreText);
 
@@ -561,4 +566,13 @@ void Game::RenderHUD(sf::RenderWindow & window, float elapsed, sf::Font & font)
 	score.setColor(sf::Color::White);
 	score.setPosition(50, 75);
 	window.draw(score);
+
+	ss.str("");
+	ss << "Time: " << std::round(metrics.timeAlive * 100.f) / 100.f << "s";
+	sf::Text time;
+	time.setString(ss.str());
+	time.setFont(font);
+	time.setColor(sf::Color::White);
+	time.setPosition(50, 100);
+	window.draw(time);
 }

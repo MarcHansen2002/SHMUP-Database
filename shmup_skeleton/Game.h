@@ -39,6 +39,7 @@ tracking stats about players
 struct Metrics {
 	const std::string VERSION = "1.4";	//change this every time the game changes significantly
 	int score;				//current session score
+	float timeAlive;		//current time alive 
 	int lives;				//current session lives
 	std::string name;		//current player
 	bool useDB = true;		//database or text file?
@@ -48,6 +49,7 @@ struct Metrics {
 	struct PlayerData {
 		std::string name = "XXX";
 		int score = 0;
+		float timeAlive = 0;
 	};
 	std::vector<PlayerData> playerData;		//info about the last 10 players
 	std::string filePath;		//where we are storing the data
